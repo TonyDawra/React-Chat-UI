@@ -1,113 +1,118 @@
-# React Chat UI Kit Example (v6)
+# React Chat UI
 
-A fully‑functional, plug‑and‑play chat interface powered by the **CometChat React UI Kit v6**. The project is delivered as a TypeScript Create‑React‑App you can run out‑of‑the‑box, tailor to your own brand, or cherry‑pick components from for an existing React stack.
+A **single‑page chat interface** built with **React 18**, **TypeScript**, and the **CometChat UI Kit v4**. The goal is to provide a plug‑and‑play front‑end you can drop into any project to enable 1‑to‑1 and group messaging, voice/video calling, and presence indicators out of the box.
 
----
-
-## ✨ Highlights
-
-| Feature                       | Details                                                                                                              |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **One‑line initialisation**   | The UI Kit is boot‑strapped in `src/index.tsx` via `CometChatUIKit.init()` and a `UIKitSettingsBuilder`.             |
-| **100 % TypeScript**          | Strict‑mode TypeScript for safer refactors and IDE autocompletion.                                                   |
-| **Centralised settings file** | Toggle chat, call, AI, layout, and style options from a single JSON descriptor (`project-info/BUILDER_SETTINGS.md`). |
-| **Multi‑lingual**             | 20+ locale JSON files live under `src/CometChat/locales/`.                                                           |
-| **CRA build pipeline**        | Uses the standard `react‑scripts` workflow (`npm start`, `npm run build`, `npm test`).                               |
-| **E2E ready**                 | All DOM nodes are exported with deterministic `data-testid` attributes for easy testing.                             |
+> ⚠️  This repository focuses on the **client‑side UI only**. You do **not** need to host your own back‑end; CometChat handles real‑time messaging, media storage, and authentication for you.
 
 ---
 
-## 🗺️ Folder Map
+## Project structure
 
-```text
-chat-ui-kit-react/
-│
-├─ public/                # CRA static assets
-├─ src/
-│  ├─ CometChat/          # Auto‑generated UI Kit + helpers
-│  │   ├─ assets/         # Icons, images & SVGs
-│  │   ├─ components/     # Chat UI components (calls, groups, threads…)
-│  │   ├─ context/        # React Context for settings
-│  │   ├─ locales/        # i18n JSON bundles
-│  │   └─ styles/         # Component‑scoped CSS modules
-│  ├─ App.tsx             # Thin shell that mounts <CometChatHome/>
-│  └─ index.tsx           # CRA entry – Initialises & renders the UI Kit
-│
-├─ project-info/
-│  └─ BUILDER_SETTINGS.md # Documentation for every available toggle
-│
-├─ package.json           # Dependencies & npm scripts
-└─ tsconfig.json          # TypeScript compiler rules
+```
+React-Chat-UI/
+ ├─ public/
+ └─ src/
+      ├─ components/     # custom wrappers & helpers
+      ├─ theme/          # Tailwind / CSS variables
+      ├─ App.tsx         # root component
+      └─ AppConstants.ts # <— put your CometChat credentials here
 ```
 
 ---
 
-## 🔧 Prerequisites
+## Prerequisites
 
-* **Node ≥ 16** (LTS recommended)
-* **npm ≥ 8** or **Yarn ≥ 1.22**
-* A CometChat **App ID**, **Region**, and **Auth Key**
+* **Node.js ≥ 18**
+* **npm** (or **yarn** / **pnpm**)
+* A **CometChat** developer account (free tier works fine)
 
 ---
 
-## 🚀 Quick Start
+## 1 · Clone & install
 
 ```bash
-# 1 ▸ Install dependencies
-npm install
+# grab the repo
+git clone <repo-url>
+cd React-Chat-UI
 
-# 2 ▸ Add your credentials
-#    Edit the COMETCHAT_CONSTANTS object in src/index.tsx
-
-# 3 ▸ Run in development mode (http://localhost:3000)
-npm start
+# install dependencies
+npm install   # or yarn install / pnpm i
 ```
 
-### Production build
+---
+
+## 2 · Get your CometChat credentials
+
+1. Sign up / log in at **[dashboard.cometchat.com](https://dashboard.cometchat.com/)**.
+2. Click **➕ Add App** → choose **v3** (UI Kit v4 is built on the v3 platform).
+3. Inside the app dashboard, copy these values:
+
+   * **APP ID**
+   * **REGION** (e.g. `eu`, `us`, `in`)
+   * **Auth Key** (from the **API & Auth Keys** tab, typically marked `auth_only`)
+   * *(optional)* **REST API Key** – only needed for server‑to‑server calls.
+4. Open `src/AppConstants.ts` and paste them in:
+
+```ts
+export const AppConstants = {
+  APP_ID : "YOUR_APP_ID_HERE",
+  REGION : "YOUR_REGION_HERE",  // e.g. "us"
+  AUTH_KEY : "YOUR_AUTH_KEY_HERE",
+  REST_KEY : "YOUR_OPTIONAL_REST_KEY_HERE", // leave blank if unused
+};
+```
+
+> **Why these keys?**
+> *`APP_ID`* and *`REGION`* locate your CometChat app in the cloud.
+> *`AUTH_KEY`* lets the JavaScript SDK authenticate as any user without exposing your master secret.
+> The optional *`REST_KEY`* is for secure server calls (e.g., creating users from a backend) and **should never be exposed in the browser**.
+
+---
+
+## 3 · Run the app
 
 ```bash
-npm run build   # Outputs static assets into build/
+npm start      # launches CRA dev server at http://localhost:3000
 ```
 
-Deploy the **build/** folder to any static host (Netlify, Vercel, S3, Cloudflare Pages, etc.).
+On first launch you’ll be prompted for a **UID** to log in as. You can:
+
+* Use CometChat’s **Dashboard → Users** page to create a test user, or
+* Call the REST API to create users programmatically if you have the REST key.
 
 ---
 
-## ⚙️ Configuring the UI Kit
+## Features
 
-All runtime options are defined in **`project-info/BUILDER_SETTINGS.md`**. Edit that file to enable/disable:
-
-* **Chat features** – typing indicator, threaded replies, reactions, polls…
-* **Call features** – one‑to‑one & group calling, recording, screenshare…
-* **Layout** – show/hide side‑panes, message list density, RTL support…
-* **Style** – accent colour, typography scale, roundedness, dark mode…
-
-Changes are hot‑reloaded; no rebuild is required.
-
----
-
-## 🛠️ Extending
-
-| Goal                         | Where to start                                                                                           |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
-| **Add custom message types** | Create a component in `src/CometChat/components` and register it via the `MessageComposerExtension` API. |
-| **Override theme tokens**    | Add CSS vars under `:root` in `src/CometChat/styles/global.css` or wrap the app in a ThemeProvider.      |
-| **Integrate with your auth** | Replace the guest **Auth Key** flow in `src/index.tsx` with tokens from your backend.                    |
-| **State management**         | The project is context‑driven, but you can slot Redux/Zustand around it if desired.                      |
+| Capability        | Details                                         |
+| ----------------- | ----------------------------------------------- |
+| **Messaging**     | Text, emojis, file sharing, threads             |
+| **Voice & Video** | 1‑to‑1 & group calling with automatic UI states |
+| **Presence**      | Online/offline, typing indicators               |
+| **Groups**        | Public, password, or private groups             |
+| **Theming**       | Tailwind + CSS variables for easy re‑skin       |
 
 ---
 
-## 📜 Scripts
+## Useful scripts
 
-| Command         | Purpose                                                                  |
-| --------------- | ------------------------------------------------------------------------ |
-| `npm start`     | Launch CRA dev server on [http://localhost:3000](http://localhost:3000). |
-| `npm run build` | Compile an optimised production bundle to **build/**.                    |
-| `npm test`      | Run Jest/React‑Testing‑Library tests (none included by default).         |
-| `npm run eject` | Permanently expose CRA webpack config (irreversible).                    |
+| Command         | Purpose                              |
+| --------------- | ------------------------------------ |
+| `npm start`     | Start CRA dev server with hot reload |
+| `npm run build` | Production build in `build/`         |
+| `npm test`      | React Testing Library + Jest         |
+| `npm run lint`  | ESLint & Prettier checks             |
 
 ---
 
-## 🪪 License
+## Deployment
 
-MIT License
+After `npm run build`, host the contents of the `build/` folder on any static host (Netlify, Vercel, S3, Firebase Hosting, etc.). Ensure your domain is added under **Dashboard → Settings → Allowed Origins** so CometChat can accept requests from it.
+
+---
+
+## License
+
+MIT — see [`LICENSE`](LICENSE) for full text.
+
+---
